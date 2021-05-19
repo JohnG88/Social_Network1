@@ -48,3 +48,5 @@ class Profile(models.Model):
         super().save(*args, **kwargs)
 
 
+class Relationship(models.Model):
+    
