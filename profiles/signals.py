@@ -11,6 +11,7 @@ def post_save_create_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
 
+# Code below allows to save friend to receiver and sender, when a friend request is accepted
 @receiver(post_save, sender=Relationship)
 def post_save_add_to_friends(sender, instance, created, **kwargs):
     sender_ = instance.sender
