@@ -5,7 +5,7 @@ from .models import Profile
 
 def my_profile_view(request):
     # This gets profile of user that is logged in
-    obj = Profile.objects.get(user=request.user)
+    profile = Profile.objects.get(user=request.user)
 
-    context = {'obj': obj}
+    context = {'profile': profile}
     return render(request, 'profiles/myprofile.html', context)

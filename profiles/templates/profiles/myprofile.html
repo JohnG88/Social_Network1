@@ -5,5 +5,30 @@
 {% endblock title %}
 
 {% block content %}
-    <h1>My profile</h1>
+    <h1>My profile {{profile}}</h1>
+    <hr>
+    <img src="{{profile.avatar.url}}" alt="">
+    <br>
+    {{ profile.avatar.url }}
+    <br>
+    {{ profile.avatar }}
+    <hr>
+    {% comment "" %}
+        can also add obj.slug to get the slug name
+    {% endcomment %}
+    {{ profile.first_name }}
+    <br>
+    {{ profile.last_name }}
+    <br>
+    {{ profile.bio }}
+    <br>
+    {{ profile.country }}
+    <br>
+    {{ profile.get_friends_no }}
+    <br>
+    <ul>
+        {% for friend in profile.get_friends %}
+            <li>{{ friend }}</li>
+        {% endfor %}
+    </ul>
 {% endblock content %}
