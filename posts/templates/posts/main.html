@@ -12,15 +12,20 @@
                 <div class="right floated meta">
                 <div class="ui grid">
                     <div class="row">
+                    {% comment "" %}Line below checks to see if request.user is == the object author user and if it is show update/delete buttons{% endcomment %}
                         {% ifequal request.user obj.author.user %}
                             <a href="{% url 'posts:post-update' obj.pk %}"><button class="ui button bwhite-lg ">Update</button></a>
                             <a href="{% url 'posts:post-delete' obj.pk %}"><button class="ui button bwhite-lg ">Delete</button></a>
                         {% endifequal %}
+                    
                     </div>
                 </div>
                     
                 </div>
                 <img class="ui avatar image" src={{obj.author.avatar.url}}> 
+                {% comment "" %}
+                    line below shows, John-1 day, 15 hours ago, by the avatar pic
+                {% endcomment %}
                 {{ obj.author.user }} - {{ obj.created|timesince}} ago
             </div>
             <div class="ui fluid image">
@@ -61,6 +66,9 @@
                 </div>
                 <button class="cmt_btn ui button mb-5">show / hide comments</button>
                 <div class="comment-box">
+                {% comment "" %}
+                    Below is, if comment exist then loop through all of them
+                {% endcomment %}
                 {% if obj.comment_set.all %}
                     {% for c in obj.comment_set.all %}
                     
@@ -103,6 +111,7 @@
 
 {% block scripts %} 
     <script>
+    // Bottom has to do with .comment-box display = none from css. So create a variable named display and set to false, when .cmt-btn is clicked if display === false then show .comment-box and set display to true, else set .comment-box to hide and set display to false
         $( document ).ready(function() {
             let display = false
             $(".cmt_btn").click(function () {
