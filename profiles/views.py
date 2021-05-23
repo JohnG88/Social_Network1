@@ -47,7 +47,13 @@ def accept_invitation(request):
     return redirect('profiles:my-invites-view')
 
 def reject_invitation(request):
-    pass
+    if request.method =='POST':
+        pk = request.POST.get('profile_pk')
+        sender = Profile.objects.get(pk=pk)
+        receiver = Profile.objects.get(user=request.user)
+        rel = get_object_or_404(Relationship, sender=sender, receiver=receiver)
+        rel.delete()
+    return redirect('profiles:my-invites-view')
 
 def invites_profiles_list_view(request):
     user=request.user
