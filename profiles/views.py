@@ -3,6 +3,7 @@ from .models import Profile, Relationship
 from .forms import ProfileModelForm
 from django.views.generic import ListView
 from django.contrib.auth.models import User
+from django.db.models import Q
 
 # Create your views here.
 
@@ -94,4 +95,16 @@ def send_invitation(request):
     return redirect('profiles:my-profile-view')
 
 def remove_from_friends(request):
-    
+    if request.method == 'POST':
+        # Below gets the promary key from profile_list.html that has <input type="hidden" name="profile_pk" value="{{ obj.pk }}"> 
+        pk = request.POST.get('profile_pk')
+        user = request.user
+        sender = Profile.objects.get(user=user)
+        receiver = Profile.objects.get(pk=pk)
+
+        rel = Relationship.objects.get(
+            (Q(sender=sender) & Q(receiver=receiver)) | Q(sender=receiver) & Q(receiver=sender)
+        )
+        rel.delete()
+        return redirect(request.META.get('HTTP_REFERER'))
+    return redirect('profiles:my-profile-view')

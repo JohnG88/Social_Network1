@@ -34,7 +34,7 @@
                         {% endif %}
 
                         {% if request.user in obj.friends.all %}
-                        <form action="" method="POST">
+                        <form action="{% url 'profiles:remove-friend' %}" method="POST">
                             {% csrf_token %}
                             <input type="hidden" name="profile_pk" value="{{ obj.pk }}">
                             <button type="submit" class="ui negative basic button"><i class="minus square icon"></i>Remove from Friends</button>
