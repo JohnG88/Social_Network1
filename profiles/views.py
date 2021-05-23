@@ -1,6 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from .models import Profile, Relationship
 from .forms import ProfileModelForm
+from django.views.generic import ListView
+from django.contrib.auth.models import User
 
 # Create your views here.
 
@@ -27,6 +29,14 @@ def invites_received_view(request):
     context = {'qs': qs}
     return render(request, 'profiles/my_invites.html', context)
 
+def invites_profiles_list_view(request):
+    user=request.user
+
+    qs = Profile.objects.get_all_profiles_to_invite(user)
+
+    context = {'qs': qs}
+    return render(request, 'profiles/to_invite_list.html', context)
+
 def profiles_list_view(request):
     user=request.user
 
@@ -35,10 +45,53 @@ def profiles_list_view(request):
     context = {'qs': qs}
     return render(request, 'profiles/profile_list.html', context)
 
-def invites_profiles_list_view(request):
-    user=request.user
+class ProfileListView(ListView):
+    model = Profile
+    template_name = 'profiles/profile_list.html'
+    # The 'qs' below is used for template usage. If line below isn't used then you would have to use object_list in for loop in profile_list.html instead of qs
+    #context_object_name = 'qs'
 
-    qs = Profile.objects.get_all_profiles_to_invite(user)
+    # To override Profile.objects.all()
 
-    context = {'qs': qs}
-    return render(request, 'profiles/to_invite_list.html', context)
+    def get_queryset(self):
+        qs = Profile.objects.get_all_profiles(self.request.user)
+        return qs
+    
+    # Below is to add additional content to template
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Secure way of getting user while using class based functions
+        user = User.objects.get(username__iexact=self.request.user)
+        profile = Profile.objects.get(user=user)
+        # Below is like using context = {'profile': profile}
+        #context['profile'] = profile
+        rel_r = Relationship.objects.filter(sender=profile)
+        rel_s = Relationship.objects.filter(receiver=profile)
+        rel_receiver = []
+        rel_sender = []
+        for item in rel_r:
+            rel_receiver.append(item.receiver.user)
+        for item in rel_s:
+            rel_sender.append(item.sender.user)
+        context['rel_receiver'] = rel_receiver
+        context['rel_sender'] = rel_sender
+        context['is_empty'] = False
+        if len(self.get_queryset()) == 0:
+            context['is_empty'] = True
+        return context
+
+def send_invitation(request):
+    if request.method == 'POST':
+        # Below gets the promary key from profile_list.html that has <input type="hidden" name="profile_pk" value="{{ obj.pk }}"> 
+        pk = request.POST.get('profile_pk')
+        user = request.user
+        sender = Profile.objects.get(user=user)
+        receiver = Profile.objects.get(pk=pk)
+
+        rel = Relationship.objects.create(sender=sender, receiver=receiver, status='send')
+
+        return redirect(request.META.get('HTTP_REFERER'))
+    return redirect('profiles:my-profile-view')
+
+def remove_from_friends(request):
+    
