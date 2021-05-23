@@ -1,4 +1,5 @@
 from django.db import models
+from django.shortcuts import reverse
 from django.contrib.auth.models import User
 from .utils import get_random_code
 #from django.template.defaultfilters import slugify
@@ -48,6 +49,12 @@ class Profile(models.Model):
 
     objects = ProfileManager()
 
+    def __str__(self):
+        return f"{self.user.username}-{self.created.strftime('%d-%m-%Y')}"
+
+    def get_absolute_url(self):
+        return reverse('profiles:profile-detail-view', kwargs={'slug': self.slug})
+
     # Get all the friends from the many to many fields
     def get_friends(self):
         return self.friends.all()
@@ -78,28 +85,38 @@ class Profile(models.Model):
             total_liked += item.liked.all().count()
         return total_liked
 
-    def __str__(self):
-        return f"{self.user.username}-{self.created.strftime('%d-%m-%Y')}"
     
+    
+    # There was a problem with trying to remove a friend once it was added, the problem was it would change the slug every time it was saved. The lines below fixed that, from __initial_first_name = None, all the way to self.slug == '':
+    __initial_first_name = None
+    __initail_last_name = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__initial_first_name = self.first_name
+        self.__initial_last_name = self.last_name
+
     # Creating first profile with name and last name in slug, the following profiles, if they have the same name will have a number by them, prob how red eyed coder did with implementing the time to slug(maybe it was pyplane?)
     def save(self, *args, **kwargs):
         # Set ex to false
         ex = False
+        to_slug = self.slug
         # If first name and last name
-        if self.first_name and self.last_name:
+        if self.first_name != self.__initial_first_name or self.last_name != self.__initial_last_name or self.slug == '':
             # slugify first name and last name
-            to_slug = slugify(str(self.first_name) + " " + str(self.last_name))
-            # filter profile slugs and see if it exists, assign it to ex variable
-            ex = Profile.objects.filter(slug=to_slug).exists()
-            while ex:
-                # I'm guessing if ex is not false, meaning if it is carrying some data, then slugify the get_random_code from utils.py and use that as slug.(If has same first name and last name, first person to put John G, will have John G. Second person will have John Gdd37a50a )
-                to_slug = slugify(to_slug + " " + str(get_random_code()))
-                # Check to see if it exists
+            if self.first_name and self.last_name:
+                to_slug = slugify(str(self.first_name) + " " + str(self.last_name))
+                # filter profile slugs and see if it exists, assign it to ex variable
                 ex = Profile.objects.filter(slug=to_slug).exists()
+                while ex:
+                    # I'm guessing if ex is not false, meaning if it is carrying some data, then slugify the get_random_code from utils.py and use that as slug.(If has same first name and last name, first person to put John G, will have John G. Second person will have John Gdd37a50a )
+                    to_slug = slugify(to_slug + " " + str(get_random_code()))
+                    # Check to see if it exists
+                    ex = Profile.objects.filter(slug=to_slug).exists()
 
-        else:
-            # Set user to slug
-            to_slug = str(self.user)
+            else:
+                # Set user to slug
+                to_slug = str(self.user)
         # Assign slug to to_slug
         self.slug = to_slug
         super().save(*args, **kwargs)
