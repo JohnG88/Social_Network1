@@ -130,12 +130,15 @@
                 const post_id = $(this).attr('id')
                 
                 const likeText = $(`.like-btn${post_id}`).text()
+                // Line below takes out whitespace when you console.log(trim);, you will have to console.log likeText first to see how it works
                 const trim = $.trim(likeText)
-
+                // Line below gets the url from action from form, in this case the form with .like-form class. If you console.log url from here it will show you /posts/liked/
                 const url = $(this).attr('action')
                 
                 let res;
+                // Below gets the like count every time someone likes a post
                 const likes = $(`.like-count${post_id}`).text()
+                // Below will turn variable likes(which is assigned to count text) and turn it into an integer
                 const trimCount = parseInt(likes)
                 
                 $.ajax({
@@ -146,10 +149,12 @@
                         'post_id':post_id,
                     },
                     success: function(response) {
+                        // I variable trim === 'Unlike' then switch button text to like on submit and set like count to - 1
                         if(trim === 'Unlike') {
                             $(`.like-btn${post_id}`).text('Like')
                             res = trimCount - 1
                         } else {
+                            // If liked, set Unlike to button on submit, and + 1 on like count
                             $(`.like-btn${post_id}`).text('Unlike')
                             res = trimCount + 1
                         }
