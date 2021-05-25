@@ -60,6 +60,16 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_UNIQUE = True
 
+# For when live usage
+#ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+
+# Below works for development
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
+
+# Below is how it would be, I have it somewhere in a diff project
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
