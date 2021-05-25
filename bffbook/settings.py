@@ -50,7 +50,13 @@ INSTALLED_APPS = [
 
 SITE_ID = 1
 
-LOGIN_URL = '/admin/'
+# This line had anonymoususer got to admin page
+#LOGIN_URL = '/admin/'
+
+# This line directs when logged in to /posts
+LOGIN_REDIRECT_URL = '/posts'
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
