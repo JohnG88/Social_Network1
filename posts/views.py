@@ -6,9 +6,11 @@ from .forms import PostModelForm, CommentModelForm
 from django.views.generic import UpdateView, DeleteView
 from django.contrib import messages
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 # Create your views here.
 
-
+@login_required
 def post_comment_create_and_list_view(request):
     qs = Post.objects.all()
     profile = Profile.objects.get(user=request.user)
@@ -42,7 +44,8 @@ def post_comment_create_and_list_view(request):
 
     context = {'qs': qs, 'profile': profile, 'p_form': p_form, 'c_form': c_form, 'post_added': post_added}
     return render(request, 'posts/main.html', context)
-
+    
+@login_required
 def like_unlike_post(request):
     user = request.user
     if request.method == 'POST':
@@ -76,8 +79,8 @@ def like_unlike_post(request):
     
     return redirect('posts:main-post-view')
 
-
-class PostDeleteView(DeleteView):
+# To add a functionality like @login_required, import LoginRequiredMixin and place it in front of DeleteView(prob works on UpdateView, etc) 
+class PostDeleteView(LoginRequiredMixin, DeleteView):
     model = Post
     template_name = 'posts/confirm_del.html'
     success_url = reverse_lazy('posts:main-post-view')
@@ -91,7 +94,7 @@ class PostDeleteView(DeleteView):
             messages.warning(self.request, 'You need to be the author of the Post top delete it')
         return obj
 
-class PostUpdateView(UpdateView):
+class PostUpdateView(LoginRequiredMixin, UpdateView):
     form_class = PostModelForm
     model = Post
     template_name = 'posts/update.html'
