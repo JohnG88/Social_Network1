@@ -56,7 +56,9 @@ SITE_ID = 1
 # This line directs when logged in to /posts
 LOGIN_REDIRECT_URL = '/posts'
 
-
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_UNIQUE = True
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
