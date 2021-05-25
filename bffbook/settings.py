@@ -40,7 +40,15 @@ INSTALLED_APPS = [
 
     'posts',
     'profiles',
+
+    # Django all-auth
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
 ]
+
+SITE_ID = 1
 
 LOGIN_URL = '/admin/'
 
@@ -73,6 +81,17 @@ TEMPLATES = [
         },
     },
 ]
+
+AUTHENTICATION_BACKENDS = [
+    
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+    
+]
+
 
 WSGI_APPLICATION = 'bffbook.wsgi.application'
 
